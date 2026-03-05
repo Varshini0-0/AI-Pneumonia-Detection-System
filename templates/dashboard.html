@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Pneumonia Detection System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────────────────────── -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <div class="brand-icon"><i class="fa-solid fa-lungs"></i></div>
+      <span class="brand-text">PneumoAI</span>
+    </a>
+    <div class="ms-auto d-flex gap-3 align-items-center">
+      <a href="/" class="nav-link active">Dashboard</a>
+      <a href="/detect" class="nav-link">Detect</a>
+      <a href="/history" class="nav-link">History</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ───────────────────────────────────────────────────────────────── -->
+<section class="hero-section">
+  <div class="hero-bg-grid"></div>
+  <div class="container py-5">
+    <div class="row align-items-center min-vh-60">
+      <div class="col-lg-7">
+        <div class="badge-pill mb-3 animate-fade-up delay-0">
+          <span class="dot"></span> AI-Powered Medical Imaging
+        </div>
+        <h1 class="hero-title animate-fade-up delay-1">
+          AI Pneumonia<br/>
+          <span class="text-accent">Detection</span> System
+        </h1>
+        <p class="hero-sub animate-fade-up delay-2">
+          Deep learning analysis of chest X-rays to detect pneumonia with
+          clinical-grade accuracy. Powered by DenseNet with Grad-CAM explainability
+          for transparent, interpretable AI diagnostics.
+        </p>
+        <div class="d-flex gap-3 flex-wrap animate-fade-up delay-3">
+          <a href="/detect" class="btn btn-primary-custom">
+            <i class="fa-solid fa-magnifying-glass-plus me-2"></i>Start Detection
+          </a>
+          <a href="/history" class="btn btn-outline-custom">
+            <i class="fa-solid fa-clock-rotate-left me-2"></i>View History
+          </a>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-flex justify-content-center">
+        <div class="xray-visual">
+          <div class="xray-ring ring-1"></div>
+          <div class="xray-ring ring-2"></div>
+          <div class="xray-ring ring-3"></div>
+          <div class="xray-core">
+            <i class="fa-solid fa-lungs fa-4x text-accent"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Statistics ─────────────────────────────────────────────────────────── -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row g-4">
+      <!-- Total Scans -->
+      <div class="col-md-4">
+        <div class="stat-card animate-slide-up delay-0">
+          <div class="stat-icon total"><i class="fa-solid fa-microscope"></i></div>
+          <div class="stat-body">
+            <div class="stat-number">{{ total }}</div>
+            <div class="stat-label">Total Scans</div>
+            <div class="stat-sub">All X-rays analysed</div>
+          </div>
+          <div class="stat-bar" style="--pct: 100%; --color: #38bdf8;"></div>
+        </div>
+      </div>
+      <!-- Pneumonia -->
+      <div class="col-md-4">
+        <div class="stat-card animate-slide-up delay-1">
+          <div class="stat-icon pneumonia"><i class="fa-solid fa-virus"></i></div>
+          <div class="stat-body">
+            <div class="stat-number">{{ pneumonia }}</div>
+            <div class="stat-label">Pneumonia Detected</div>
+            <div class="stat-sub">Positive cases</div>
+          </div>
+          <div class="stat-bar" style="--pct: {{ (pneumonia / total * 100)|int if total > 0 else 0 }}%; --color: #f87171;"></div>
+        </div>
+      </div>
+      <!-- Normal -->
+      <div class="col-md-4">
+        <div class="stat-card animate-slide-up delay-2">
+          <div class="stat-icon normal"><i class="fa-solid fa-shield-heart"></i></div>
+          <div class="stat-body">
+            <div class="stat-number">{{ normal }}</div>
+            <div class="stat-label">Normal Scans</div>
+            <div class="stat-sub">Negative / clear results</div>
+          </div>
+          <div class="stat-bar" style="--pct: {{ (normal / total * 100)|int if total > 0 else 0 }}%; --color: #34d399;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Feature Cards ──────────────────────────────────────────────────────── -->
+<section class="features-section">
+  <div class="container">
+    <h2 class="section-title text-center mb-5">How It Works</h2>
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="feature-card">
+          <div class="feature-num">01</div>
+          <div class="feature-icon"><i class="fa-solid fa-upload"></i></div>
+          <h5>Upload X-Ray</h5>
+          <p>Drag & drop or browse to select a chest X-ray image in JPEG or PNG format.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="feature-card">
+          <div class="feature-num">02</div>
+          <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+          <h5>AI Analysis</h5>
+          <p>DenseNet deep learning model processes the image and classifies lung patterns.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="feature-card">
+          <div class="feature-num">03</div>
+          <div class="feature-icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+          <h5>Grad-CAM Heatmap</h5>
+          <p>Explainable AI highlights the exact lung regions that influenced the prediction.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="feature-card">
+          <div class="feature-num">04</div>
+          <div class="feature-icon"><i class="fa-solid fa-file-medical"></i></div>
+          <h5>Detailed Report</h5>
+          <p>View confidence score, visual heatmap, and AI-generated clinical explanation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ────────────────────────────────────────────────────────────────── -->
+<section class="cta-section">
+  <div class="container text-center">
+    <h2 class="cta-title">Ready to Analyse an X-Ray?</h2>
+    <p class="cta-sub">Upload a chest X-ray and receive an AI-powered diagnosis in seconds.</p>
+    <a href="/detect" class="btn btn-primary-custom btn-lg mt-2">
+      <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Begin Analysis
+    </a>
+    <p class="disclaimer mt-4">
+      <i class="fa-solid fa-triangle-exclamation me-1"></i>
+      For research and educational purposes only. Not a substitute for professional medical advice.
+    </p>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

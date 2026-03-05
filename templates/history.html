@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>History – AI Pneumonia Detection System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <div class="brand-icon"><i class="fa-solid fa-lungs"></i></div>
+      <span class="brand-text">PneumoAI</span>
+    </a>
+    <div class="ms-auto d-flex gap-3 align-items-center">
+      <a href="/" class="nav-link">Dashboard</a>
+      <a href="/detect" class="nav-link">Detect</a>
+      <a href="/history" class="nav-link active">History</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <a href="/" class="breadcrumb-link"><i class="fa-solid fa-house"></i></a>
+      <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+      <span class="breadcrumb-cur">Detection History</span>
+    </div>
+    <h2 class="page-title">Detection History</h2>
+    <p class="page-sub">All previous X-ray analyses, sorted by most recent.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+
+  <!-- Filter Bar -->
+  <div class="filter-bar mb-4 d-flex flex-wrap gap-3 align-items-center justify-content-between">
+    <div class="d-flex gap-2">
+      <button class="filter-btn active" onclick="filterRecords('all', this)">All</button>
+      <button class="filter-btn" onclick="filterRecords('PNEUMONIA', this)">Pneumonia</button>
+      <button class="filter-btn" onclick="filterRecords('NORMAL', this)">Normal</button>
+    </div>
+    <div class="history-count">
+      <i class="fa-solid fa-database me-1 text-accent"></i>
+      {{ records|length }} record{% if records|length != 1 %}s{% endif %} found
+    </div>
+  </div>
+
+  {% if records %}
+  <!-- History Table -->
+  <div class="history-table-wrap">
+    <table class="history-table" id="historyTable">
+      <thead>
+        <tr>
+          <th>X-Ray</th>
+          <th>Heatmap</th>
+          <th>Result</th>
+          <th>Confidence</th>
+          <th>Date & Time</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in records %}
+        <tr class="hist-row" data-result="{{ record.result }}">
+          <td>
+            <a href="/result/{{ record.id }}">
+              <img src="/static/uploads/{{ record.filename }}"
+                   alt="X-Ray" class="hist-thumb" />
+            </a>
+          </td>
+          <td>
+            <a href="/result/{{ record.id }}">
+              <img src="/static/heatmaps/{{ record.heatmap }}"
+                   alt="Heatmap" class="hist-thumb heatmap-thumb" />
+            </a>
+          </td>
+          <td>
+            <span class="result-badge {% if record.result == 'PNEUMONIA' %}badge-pneumonia{% else %}badge-normal{% endif %}">
+              {% if record.result == 'PNEUMONIA' %}
+                <i class="fa-solid fa-virus me-1"></i>
+              {% else %}
+                <i class="fa-solid fa-circle-check me-1"></i>
+              {% endif %}
+              {{ record.result }}
+            </span>
+          </td>
+          <td>
+            <div class="conf-bar-wrap">
+              <div class="conf-bar-track">
+                <div class="conf-bar-fill {% if record.result == 'PNEUMONIA' %}fill-pneumonia{% else %}fill-normal{% endif %}"
+                     style="width: {{ record.confidence }}%;"></div>
+              </div>
+              <span class="conf-pct">{{ record.confidence }}%</span>
+            </div>
+          </td>
+          <td class="hist-date">
+            <div>{{ record.timestamp.split(' ')[0] }}</div>
+            <div class="hist-time">{{ record.timestamp.split(' ')[1] }}</div>
+          </td>
+          <td>
+            <div class="d-flex gap-2">
+              <a href="/result/{{ record.id }}" class="action-btn view-btn" title="View Result">
+                <i class="fa-solid fa-eye"></i>
+              </a>
+              <form action="/delete/{{ record.id }}" method="POST" onsubmit="return confirm('Delete this record?');">
+                <button type="submit" class="action-btn delete-btn" title="Delete">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <!-- Empty State -->
+  <div class="empty-state text-center py-5">
+    <div class="empty-icon mb-3"><i class="fa-solid fa-folder-open"></i></div>
+    <h4>No Scans Yet</h4>
+    <p class="text-muted">Upload your first chest X-ray to begin analysis.</p>
+    <a href="/detect" class="btn btn-primary-custom mt-2">
+      <i class="fa-solid fa-plus me-2"></i>Start Detection
+    </a>
+  </div>
+  {% endif %}
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+function filterRecords(result, btn) {
+  // Highlight active button
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Show/hide rows
+  document.querySelectorAll('.hist-row').forEach(row => {
+    row.style.display = (result === 'all' || row.dataset.result === result) ? '' : 'none';
+  });
+}
+
+// Animate confidence bars on load
+window.addEventListener('load', () => {
+  document.querySelectorAll('.conf-bar-fill').forEach(bar => {
+    const target = bar.style.width;
+    bar.style.width = '0';
+    setTimeout(() => {
+      bar.style.transition = 'width 0.8s cubic-bezier(.4,0,.2,1)';
+      bar.style.width = target;
+    }, 200);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detect – AI Pneumonia Detection System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <div class="brand-icon"><i class="fa-solid fa-lungs"></i></div>
+      <span class="brand-text">PneumoAI</span>
+    </a>
+    <div class="ms-auto d-flex gap-3 align-items-center">
+      <a href="/" class="nav-link">Dashboard</a>
+      <a href="/detect" class="nav-link active">Detect</a>
+      <a href="/history" class="nav-link">History</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <a href="/" class="breadcrumb-link"><i class="fa-solid fa-house"></i></a>
+      <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+      <span class="breadcrumb-cur">Detection</span>
+    </div>
+    <h2 class="page-title">Chest X-Ray Analysis</h2>
+    <p class="page-sub">Upload a chest X-ray image to receive an AI-powered pneumonia diagnosis.</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <!-- Upload Card -->
+      <div class="upload-card">
+        <form id="uploadForm" action="/analyze" method="POST" enctype="multipart/form-data">
+
+          <!-- Drag & Drop Zone -->
+          <div class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" name="xray" accept="image/*" class="d-none" required />
+            <div class="drop-content" id="dropContent">
+              <div class="drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <h4>Drag & Drop X-Ray Here</h4>
+              <p class="drop-sub">or click to browse from your device</p>
+              <button type="button" class="btn btn-outline-custom mt-2" onclick="document.getElementById('fileInput').click()">
+                <i class="fa-solid fa-folder-open me-2"></i>Browse Files
+              </button>
+              <p class="drop-hint mt-3">Supported formats: JPG, PNG &nbsp;|&nbsp; Max size: 16 MB</p>
+            </div>
+
+            <!-- Image Preview (hidden until file selected) -->
+            <div class="preview-area d-none" id="previewArea">
+              <img id="previewImg" src="" alt="X-Ray Preview" class="preview-img" />
+              <div class="preview-overlay">
+                <button type="button" class="btn-clear" onclick="clearFile()">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Info Bar -->
+          <div class="file-info-bar d-none" id="fileInfoBar">
+            <div class="d-flex align-items-center gap-3">
+              <div class="file-thumb"><i class="fa-solid fa-image"></i></div>
+              <div class="file-meta">
+                <div class="file-name" id="fileName">—</div>
+                <div class="file-size" id="fileSize">—</div>
+              </div>
+              <div class="ms-auto">
+                <span class="badge-ready"><i class="fa-solid fa-circle-check me-1"></i>Ready</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit -->
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary-custom btn-lg px-5" id="analyzeBtn" disabled>
+              <i class="fa-solid fa-magnifying-glass-chart me-2"></i>Analyse X-Ray
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Loading Overlay (shown during upload) -->
+      <div class="loading-overlay d-none" id="loadingOverlay">
+        <div class="loading-box">
+          <div class="loading-ring"></div>
+          <div class="loading-text mt-4">Analysing X-Ray…</div>
+          <div class="loading-sub">Running deep learning inference & Grad-CAM</div>
+          <div class="loading-steps mt-3">
+            <div class="step active" id="step1"><i class="fa-solid fa-upload me-1"></i>Uploading image</div>
+            <div class="step" id="step2"><i class="fa-solid fa-brain me-1"></i>Running model</div>
+            <div class="step" id="step3"><i class="fa-solid fa-fire-flame-curved me-1"></i>Generating heatmap</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Cards -->
+      <div class="row g-3 mt-4">
+        <div class="col-md-4">
+          <div class="info-card">
+            <i class="fa-solid fa-shield-halved text-accent mb-2"></i>
+            <h6>Secure Upload</h6>
+            <small>Images are processed locally and not shared with third parties.</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="info-card">
+            <i class="fa-solid fa-gauge-high text-accent mb-2"></i>
+            <h6>Fast Results</h6>
+            <small>AI analysis and Grad-CAM generation completes in under 5 seconds.</small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="info-card">
+            <i class="fa-solid fa-eye text-accent mb-2"></i>
+            <h6>Explainable AI</h6>
+            <small>See exactly which lung regions drove the model's prediction.</small>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+// ── Drag & Drop Logic ────────────────────────────────────────────────────────
+const dropZone   = document.getElementById('dropZone');
+const fileInput  = document.getElementById('fileInput');
+const analyzeBtn = document.getElementById('analyzeBtn');
+
+['dragenter','dragover'].forEach(ev =>
+  dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('drag-over'); })
+);
+['dragleave','drop'].forEach(ev =>
+  dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('drag-over'); })
+);
+dropZone.addEventListener('drop', e => {
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) handleFile(fileInput.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
+  if (file.size > 16 * 1024 * 1024) { alert('File exceeds 16 MB limit.'); return; }
+
+  // Preview
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('previewImg').src = e.target.result;
+    document.getElementById('dropContent').classList.add('d-none');
+    document.getElementById('previewArea').classList.remove('d-none');
+  };
+  reader.readAsDataURL(file);
+
+  // Sync hidden input
+  const dt = new DataTransfer();
+  dt.items.add(file);
+  fileInput.files = dt.files;
+
+  // File info bar
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+  document.getElementById('fileInfoBar').classList.remove('d-none');
+
+  analyzeBtn.disabled = false;
+}
+
+function clearFile() {
+  fileInput.value = '';
+  document.getElementById('previewImg').src = '';
+  document.getElementById('dropContent').classList.remove('d-none');
+  document.getElementById('previewArea').classList.add('d-none');
+  document.getElementById('fileInfoBar').classList.add('d-none');
+  analyzeBtn.disabled = true;
+}
+
+// ── Loading Overlay Logic ────────────────────────────────────────────────────
+document.getElementById('uploadForm').addEventListener('submit', () => {
+  document.getElementById('loadingOverlay').classList.remove('d-none');
+  document.body.style.overflow = 'hidden';
+
+  // Animate steps
+  const steps = ['step1','step2','step3'];
+  steps.forEach((id, i) => {
+    setTimeout(() => {
+      steps.slice(0, i).forEach(prev => document.getElementById(prev).classList.add('done'));
+      document.getElementById(id).classList.add('active');
+    }, i * 1500);
+  });
+});
+</script>
+</body>
+</html>

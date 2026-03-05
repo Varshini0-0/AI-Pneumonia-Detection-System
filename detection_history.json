@@ -1,0 +1,20 @@
+[
+  {
+    "id": "f1dc701b",
+    "filename": "f1dc701b.jpeg",
+    "heatmap": "hm_f1dc701b.jpg",
+    "result": "PNEUMONIA",
+    "confidence": 72.6,
+    "explanation": "The model detected abnormal opacity patterns in the highlighted lung regions with 72.6% confidence. These patterns are consistent with pneumonia. Please consult a qualified radiologist for clinical confirmation.",
+    "timestamp": "2026-03-05 09:12:30"
+  },
+  {
+    "id": "c8663a0b",
+    "filename": "c8663a0b.jpeg",
+    "heatmap": "hm_c8663a0b.jpg",
+    "result": "PNEUMONIA",
+    "confidence": 83.0,
+    "explanation": "The model detected abnormal opacity patterns in the highlighted lung regions with 83.0% confidence. These patterns are consistent with pneumonia. Please consult a qualified radiologist for clinical confirmation.",
+    "timestamp": "2026-03-05 09:11:16"
+  }
+]

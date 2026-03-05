@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Result – AI Pneumonia Detection System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <div class="brand-icon"><i class="fa-solid fa-lungs"></i></div>
+      <span class="brand-text">PneumoAI</span>
+    </a>
+    <div class="ms-auto d-flex gap-3 align-items-center">
+      <a href="/" class="nav-link">Dashboard</a>
+      <a href="/detect" class="nav-link">Detect</a>
+      <a href="/history" class="nav-link active">History</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <a href="/" class="breadcrumb-link"><i class="fa-solid fa-house"></i></a>
+      <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+      <a href="/detect" class="breadcrumb-link">Detection</a>
+      <i class="fa-solid fa-chevron-right breadcrumb-sep"></i>
+      <span class="breadcrumb-cur">Result</span>
+    </div>
+    <h2 class="page-title">Analysis Complete</h2>
+    <p class="page-sub">Scan ID: <code class="scan-id">{{ record.id }}</code> &nbsp;|&nbsp; {{ record.timestamp }}</p>
+  </div>
+</div>
+
+<div class="container py-5">
+
+  <!-- Verdict Banner -->
+  <div class="verdict-banner {% if record.result == 'PNEUMONIA' %}verdict-pneumonia{% else %}verdict-normal{% endif %} animate-fade-up mb-5">
+    <div class="verdict-icon">
+      {% if record.result == 'PNEUMONIA' %}
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      {% else %}
+        <i class="fa-solid fa-circle-check"></i>
+      {% endif %}
+    </div>
+    <div class="verdict-text">
+      <div class="verdict-label">Prediction Result</div>
+      <div class="verdict-value">{{ record.result }}</div>
+    </div>
+    <div class="verdict-conf">
+      <div class="conf-ring" style="--conf: {{ record.confidence }};">
+        <svg viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="50"/>
+          <circle class="ring-fill" cx="60" cy="60" r="50"
+            style="stroke-dasharray: {{ (record.confidence / 100 * 314.16)|round(1) }} 314.16;"/>
+        </svg>
+        <div class="conf-num">{{ record.confidence }}%</div>
+      </div>
+      <div class="conf-label">Confidence</div>
+    </div>
+  </div>
+
+  <!-- Image Comparison -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-6">
+      <div class="img-card">
+        <div class="img-card-header">
+          <i class="fa-solid fa-x-ray me-2"></i>Original X-Ray
+        </div>
+        <div class="img-card-body">
+          <img src="/static/uploads/{{ record.filename }}" alt="Original X-Ray" class="result-img" />
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="img-card">
+        <div class="img-card-header heatmap-header">
+          <i class="fa-solid fa-fire-flame-curved me-2"></i>Grad-CAM Heatmap
+          <span class="heatmap-badge ms-2">Explainable AI</span>
+        </div>
+        <div class="img-card-body">
+          <img src="/static/heatmaps/{{ record.heatmap }}" alt="Grad-CAM Heatmap" class="result-img" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Explanation -->
+  <div class="explanation-card mb-5 animate-fade-up">
+    <div class="exp-header">
+      <i class="fa-solid fa-robot me-2 text-accent"></i>AI Clinical Explanation
+    </div>
+    <div class="exp-body">
+      <p class="exp-text">{{ record.explanation }}</p>
+    </div>
+    <div class="exp-footer">
+      <i class="fa-solid fa-triangle-exclamation me-1 text-warning"></i>
+      This AI analysis is for research and educational use only and does not constitute
+      medical advice. Please consult a qualified radiologist for clinical decisions.
+    </div>
+  </div>
+
+  <!-- Result Metadata -->
+  <div class="row g-3 mb-5">
+    <div class="col-md-3">
+      <div class="meta-card">
+        <div class="meta-icon"><i class="fa-solid fa-tag"></i></div>
+        <div class="meta-label">Classification</div>
+        <div class="meta-val {{ 'val-pneumonia' if record.result == 'PNEUMONIA' else 'val-normal' }}">
+          {{ record.result }}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="meta-card">
+        <div class="meta-icon"><i class="fa-solid fa-percent"></i></div>
+        <div class="meta-label">Confidence Score</div>
+        <div class="meta-val">{{ record.confidence }}%</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="meta-card">
+        <div class="meta-icon"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="meta-label">Date & Time</div>
+        <div class="meta-val small-val">{{ record.timestamp }}</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="meta-card">
+        <div class="meta-icon"><i class="fa-solid fa-fingerprint"></i></div>
+        <div class="meta-label">Scan ID</div>
+        <div class="meta-val small-val">{{ record.id }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="d-flex gap-3 flex-wrap justify-content-center">
+    <a href="/detect" class="btn btn-primary-custom">
+      <i class="fa-solid fa-plus me-2"></i>New Analysis
+    </a>
+    <a href="/history" class="btn btn-outline-custom">
+      <i class="fa-solid fa-clock-rotate-left me-2"></i>View History
+    </a>
+    <a href="/" class="btn btn-ghost-custom">
+      <i class="fa-solid fa-house me-2"></i>Dashboard
+    </a>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Animate confidence ring on load
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.ring-fill').forEach(el => {
+      el.style.transition = 'stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1)';
+    });
+  });
+</script>
+</body>
+</html>
