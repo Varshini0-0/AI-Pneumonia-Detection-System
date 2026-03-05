@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.env
+.vscode/
+
+static/uploads/
+*.h5
